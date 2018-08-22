@@ -6,15 +6,16 @@ class Pdf
 {
     protected $file;
     protected $info;
-
+    
     public function __construct($file, $options = [])
     {
         $this->file = $file;
         $class = $this;
-        array_walk($options, function ($item, $key) use ($class) {
-            $class->$key = $item;
-        });
+        $this->options = [];
 
+        array_walk($options, function ($item, $key) use ($class) {
+          $class->options[$key] = $item;
+        });
         return $this;
     }
 
@@ -35,7 +36,6 @@ class Pdf
             $content = shell_exec($this->bin()." '".$this->file."'");
         }
 
-        // print_r($info);
         $options = explode("\n", $content);
         $info = [];
         foreach ($options as &$item) {
@@ -49,16 +49,16 @@ class Pdf
         return $this;
     }
 
-    public function getDom($options = [])
+    public function getDom()
     {
         $this->checkInfo();
 
-        return new Html($this->file, $options);
+        return new Html($this->file, $this->options);
     }
 
-    public function html($page = 1, $options = [])
+    public function html($page = 1)
     {
-        $dom = $this->getDom($options);
+        $dom = $this->getDom();
 
         return $dom->raw($page);
     }
